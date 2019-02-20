@@ -9,7 +9,7 @@ RUN apt-get update && apt-get -y install wget \
   apt-get update && \
   apt-get -y install kudu kudu-master kudu-tserver libkuduclient0 libkuduclient-dev
 
-VOLUME /tmp/lib/kudu/master /tmp/lib/kudu/tserver
+VOLUME /var/lib/kudu/master /var/lib/kudu/tserver
 
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
