@@ -1,6 +1,7 @@
 FROM ubuntu:xenial
 
 RUN apt-get update && apt-get -y install wget \
+  default-jdk default-jre \
   telnet \
   curl && \
   cd /etc/apt/sources.list.d && \
@@ -15,6 +16,7 @@ USER 1001
 VOLUME /var/lib/kudu/master /var/lib/kudu/tserver
 
 COPY docker-entrypoint.sh /
+COPY kudu-client-1.0-SNAPSHOT.jar /
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 EXPOSE 8050 8051 7050 7051

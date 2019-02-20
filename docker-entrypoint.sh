@@ -40,7 +40,7 @@ elif [ "$1" = 'tserver' ]; then
 elif [ "$1" = 'single' ]; then
   uid_entrypoint
 
-  KUDU_MASTER=localhost:7051
+  KUDU_MASTER=127.0.0.1:7051
   KUDU_MASTER_OPTS="-logtostderr \
    -fs_wal_dir=/var/lib/kudu/master \
    -fs_data_dirs=/var/lib/kudu/master \
@@ -49,6 +49,7 @@ elif [ "$1" = 'single' ]; then
    -fs_wal_dir=/var/lib/kudu/tserver \
    -fs_data_dirs=/var/lib/kudu/tserver \
    -use_hybrid_clock=false"
+  exec bash -c 'sleep 10; java -cp kudu-client-1.0-SNAPSHOT.jar syndesis.org.App' &
   exec kudu-master ${KUDU_MASTER_OPTS} &
   sleep 5
   exec kudu-tserver -tserver_master_addrs ${KUDU_MASTER} ${KUDU_TSERVER_OPTS}
