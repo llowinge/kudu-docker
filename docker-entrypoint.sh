@@ -18,6 +18,14 @@ function do_help {
   exit 0
 }
 
+function uid_entrypoint {
+  if ! whoami &> /dev/null; then
+    if [ -w /etc/passwd ]; then
+      echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/nologin" >> /etc/passwd
+    fi
+  fi
+}
+
 DEFAULT_KUDU_OPTS="-logtostderr \
  -fs_wal_dir=/var/lib/kudu/$1 \
  -fs_data_dirs=/var/lib/kudu/$1 \
@@ -26,11 +34,12 @@ DEFAULT_KUDU_OPTS="-logtostderr \
 KUDU_OPTS=${KUDU_OPTS:-${DEFAULT_KUDU_OPTS}}
 
 if [ "$1" = 'master' ]; then
-  exec kudu-master -fs_wal_dir /var/lib/kudu/master ${KUDU_OPTS}
+  exec kudu-master  ${KUDU_OPTS}
 elif [ "$1" = 'tserver' ]; then
-  exec kudu-tserver -fs_wal_dir /var/lib/kudu/tserver \
-  -tserver_master_addrs ${KUDU_MASTER} ${KUDU_OPTS}
+  exec kudu-tserver -tserver_master_addrs ${KUDU_MASTER} ${KUDU_OPTS}
 elif [ "$1" = 'single' ]; then
+  uid_entrypoint
+
   KUDU_MASTER=localhost:7051
   KUDU_MASTER_OPTS="-logtostderr \
    -fs_wal_dir=/var/lib/kudu/master \
@@ -40,10 +49,9 @@ elif [ "$1" = 'single' ]; then
    -fs_wal_dir=/var/lib/kudu/tserver \
    -fs_data_dirs=/var/lib/kudu/tserver \
    -use_hybrid_clock=false"
-  exec kudu-master -fs_wal_dir /var/lib/kudu/master ${KUDU_MASTER_OPTS} &
+  exec kudu-master ${KUDU_MASTER_OPTS} &
   sleep 5
-  exec kudu-tserver -fs_wal_dir /var/lib/kudu/tserver \
-  -tserver_master_addrs ${KUDU_MASTER} ${KUDU_TSERVER_OPTS}
+  exec kudu-tserver -tserver_master_addrs ${KUDU_MASTER} ${KUDU_TSERVER_OPTS}
 elif [ "$1" = 'kudu' ]; then
   shift; # Remove first arg and pass remainder to kudu cli
   exec kudu "$@"
