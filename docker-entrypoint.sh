@@ -26,6 +26,13 @@ function uid_entrypoint {
   fi
 }
 
+if [ -z "$ADVERTISED_ADDRESSES" ]
+then
+  ADVERTISED_ADDRESSES=$HOSTNAME
+else
+  ADVERTISED_ADDRESSES="$HOSTNAME,$ADVERTISED_ADDRESSES"
+fi
+
 DEFAULT_KUDU_OPTS="-logtostderr \
  -fs_wal_dir=/var/lib/kudu/$1 \
  -fs_data_dirs=/var/lib/kudu/$1 \
@@ -48,6 +55,7 @@ elif [ "$1" = 'single' ]; then
   KUDU_TSERVER_OPTS="-logtostderr \
    -fs_wal_dir=/var/lib/kudu/tserver \
    -fs_data_dirs=/var/lib/kudu/tserver \
+   -rpc_advertised_addresses=${ADVERTISED_ADDRESSES} \
    -use_hybrid_clock=false"
   exec bash -c 'sleep 10; java -cp kudu-client-1.0-SNAPSHOT.jar syndesis.org.App' &
   exec kudu-master ${KUDU_MASTER_OPTS} &
