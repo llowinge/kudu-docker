@@ -11,6 +11,7 @@ RUN apt-get update && apt-get -y install wget \
   apt-get -y install kudu kudu-master kudu-tserver libkuduclient0 libkuduclient-dev
 
 RUN chmod g=u /etc/passwd
+RUN umask 000 && mkdir -p /var/lib/kudu/master && mkdir -p /var/lib/kudu/tserver && chmod 777 /var/lib/kudu/master && chmod 777 /var/lib/kudu/tserver
 USER 1001
 
 VOLUME /var/lib/kudu/master /var/lib/kudu/tserver

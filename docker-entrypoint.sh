@@ -51,6 +51,7 @@ elif [ "$1" = 'single' ]; then
   KUDU_MASTER_OPTS="-logtostderr \
    -fs_wal_dir=/var/lib/kudu/master \
    -fs_data_dirs=/var/lib/kudu/master \
+   -umask=000 \
    -use_hybrid_clock=false"
   KUDU_TSERVER_OPTS="-logtostderr \
    -fs_wal_dir=/var/lib/kudu/tserver \
